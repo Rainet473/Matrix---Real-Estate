@@ -1,5 +1,7 @@
 from tkinter import *
 from registration import *
+from agent import *
+from tkinter import messagebox
 
 
 def on_username_click(event):
@@ -14,7 +16,7 @@ def on_password_click(event):
         password_entry.config(foreground="#000000")
 
 
-def sign_up_click():
+def on_sign_up_click():
     agent_register = Registration("agent", window=window, canvas=canvas, old_frame=login_frame,frame_canvas=login_canvas)
     canvas.itemconfig(bg, image=next_page_bg)
     # login_frame.destroy()
@@ -26,6 +28,19 @@ def sign_up_click():
     # canvas.itemconfig(bg, image=next_page_bg)
     # reg_canvas = canvas.create_window(60, 60, window=agent_register.frame, anchor="nw", )
 
+
+def on_login_click():
+    flag = 0
+
+    # if username_entry.get() not in database or password_entry.get() does not match in database:
+    #     messagebox.showwarning("Login Error", "Username or Password is invalid.")
+    #     flag =1
+
+    if flag == 0:
+        canvas.itemconfig(bg, image=next_page_bg)
+        login_frame.destroy()
+        agent = Agent(window=window)
+        agent_canvas = canvas.create_window(120, 80, window=agent.frame, anchor="nw")
 
 
 window = Tk()
@@ -57,13 +72,13 @@ password_entry.bind("<Button-1>", on_password_click)
 password_entry.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
 
 
-login_button = Button(login_frame, text="Login", highlightthickness=0, width=17, height=2, highlightbackground="#273C28",font=("Courier", 17, "bold"))
+login_button = Button(login_frame, text="Login", highlightthickness=0, width=17, height=2, highlightbackground="#273C28",font=("Courier", 17, "bold"), command=on_login_click)
 login_button.grid(row=3, column=0, columnspan=2, pady=(10, 20))
 
 register_label = Label(login_frame, text="Don't have an account?",fg="#fff",bg="#273C28",font=("Courier", 16, "underline"))
 register_label.grid(row=4, column=0, pady=(0, 10), columnspan=1, padx=(60, 0))
 
-sign_up_button = Button(login_frame, text="Sign Up", highlightthickness=0, width=10, height=1, highlightbackground="#273C28", command=sign_up_click)
+sign_up_button = Button(login_frame, text="Sign Up", highlightthickness=0, width=10, height=1, highlightbackground="#273C28", command=on_sign_up_click)
 sign_up_button.grid(row=4, column=1, pady=(0, 13), columnspan=1, padx=(0,60))
 
 

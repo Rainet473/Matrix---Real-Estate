@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
 
+
 class Registration:
-    def __init__(self, person, window, canvas, old_frame,frame_canvas):
+    def __init__(self, person, window, canvas, old_frame, frame_canvas):
         self.person = person
         self.canvas = canvas
         self.old_frame = old_frame
