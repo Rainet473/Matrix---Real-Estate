@@ -1,7 +1,6 @@
 from tkinter import *
 from registration import *
 from agent import *
-from tkinter import messagebox
 
 
 def on_username_click(event):
@@ -16,18 +15,18 @@ def on_password_click(event):
         password_entry.config(foreground="#000000")
 
 
+
 def on_sign_up_click():
-    agent_register = Registration("agent", window=window, canvas=canvas, old_frame=login_frame,frame_canvas=login_canvas)
+    agent_register = Registration("agent", window=window, canvas=canvas, old_frame=login_frame,frame_canvas=login_canvas, background = bg)
     canvas.itemconfig(bg, image=next_page_bg)
     # login_frame.destroy()
     # reg_canvas = canvas.create_window(60, 60, window=agent_register.frame, anchor="nw")
     # canvas.update_idletasks()
     canvas.itemconfig(login_canvas, window=agent_register.frame, anchor="nw", )
-    canvas.coords(login_canvas, 60, 60)
+    canvas.coords(login_canvas, 40, 40)
     # canvas.delete(login_canvas)
     # canvas.itemconfig(bg, image=next_page_bg)
     # reg_canvas = canvas.create_window(60, 60, window=agent_register.frame, anchor="nw", )
-
 
 def on_login_click():
     flag = 0
@@ -39,13 +38,15 @@ def on_login_click():
     if flag == 0:
         canvas.itemconfig(bg, image=next_page_bg)
         login_frame.destroy()
-        agent = Agent(window=window)
-        agent_canvas = canvas.create_window(120, 80, window=agent.frame, anchor="nw")
+        agent = Agent(window=window,canvas=canvas,frame_canvas=login_canvas)
+        agent_canvas = canvas.create_window(200, 80, window=agent.frame, anchor="nw")
+        agent.frame_canvas = agent_canvas
 
 
 window = Tk()
 window.title("Real Estate Agency")
 window.config(bg="#000")
+window.geometry("720x560+400+150")
 
 front_page_bg = PhotoImage(file="Matrix Real estate.png")
 next_page_bg = PhotoImage(file="Matrix Real estate1.png")
