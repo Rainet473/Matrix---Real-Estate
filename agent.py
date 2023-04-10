@@ -67,11 +67,26 @@ class Agent:
         self.canvas.itemconfig(self.frame_canvas, window=property.frame, anchor="nw", )
 
     def on_transaction_click(self):
+        def on_dot_click(event):
+            if self.dot.get() == "dd-mm-yyyy":
+                self.dot.delete(0, "end")
+                self.dot.config(foreground="#000000")
 
         def on_record_click():
-            # deactivation_id.get() remove fromm respective database
-            self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
-            self.canvas.coords(self.frame_canvas, 200, 80)
+            # get everything
+            flag = 0
+            if self.dot.get() == "" or self.price.get() == "":
+                messagebox.showwarning("Empty Entry", "Please enter all the fields.")
+                flag = 1
+
+            if not (self.dot.get().isdigit() and self.price.get().isdigit()) and flag == 0:
+                messagebox.showwarning("Value error", "Fill the details properly.")
+                flag = 1
+
+            if flag == 0:
+                messagebox.showinfo("Transaction", "Transaction recorded successfully.")
+                self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
+                self.canvas.coords(self.frame_canvas, 200, 80)
 
         frame = Frame(self.window, bg="#273C28", highlightthickness=2, pady=10, padx=2, highlightbackground="grey", borderwidth=5)
         self.canvas.itemconfig(self.frame_canvas, window=frame, anchor="nw", )
@@ -93,11 +108,14 @@ class Agent:
         ttk.Combobox(frame, textvariable=property, width=20, values=ids).grid(row=3, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
 
         Label(frame, text="Date of Transaction:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=4, column=0,padx=(20,30))
-        self.dot = Entry(frame, insertwidth=1, width=10, highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
+        self.dot = Entry(frame, insertwidth=1, width=15, foreground="#d3d3d3", highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
+        self.dot.focus()
+        self.dot.bind("<Button-1>", on_dot_click)
+        self.dot.insert(0, "dd-mm-yyyy")
         self.dot.grid(row=4, column=1,pady=10)
 
         Label(frame, text="Price: ", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=5, column=0,padx=(0,30))
-        self.price = Entry(frame, insertwidth=1, width=10, highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
+        self.price = Entry(frame, insertwidth=1, width=15, highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
         self.price.grid(row=5, column=1,pady=(10,20))
 
         self.radio_value = StringVar(value="1")
