@@ -1,10 +1,10 @@
 from tkinter import *
 from registration import *
 from agent import *
-
+import mysql.connector
 
 def on_username_click(event):
-    if username_entry.get() == "Agent ID":
+    if username_entry.get() == "Username":
         username_entry.delete(0, "end")
         username_entry.config(foreground="#000000")
 
@@ -30,18 +30,45 @@ def on_sign_up_click():
 
 def on_login_click():
     flag = 0
+    global username, password
+    username = username_entry.get()
+    password = password_entry.get()
 
+    if username == '':
+        messagebox.showinfo("Invalid Details", "Please enter Username")
+        return
+    if password=='':
+        messagebox.showinfo("Invalid Details", "Please enter Password")
+        return    
+
+    curr.execute(f"select * from agents where username = '{username}'")
+    agent_info = curr.fetchall()
+    connection.commit()
+
+    if len(agent_info)==0:
+        messagebox.showwarning("Login Error", "Invalid Username!")
+        flag = 1
+    else:
+        agent_info = agent_info[0]
+        if agent_info[6] != password:
+            messagebox.showwarning("Login Error", "Incorrect Password!")
+            flag = 1
+        
     # if username_entry.get() not in database or password_entry.get() does not match in database:
     #     messagebox.showwarning("Login Error", "Username or Password is invalid.")
     #     flag =1
 
     if flag == 0:
+        messagebox.showinfo("Login Successful", f"Welcome Back {agent_info[1].split()[0]}!")
         canvas.itemconfig(bg, image=next_page_bg)
         login_frame.destroy()
         agent = Agent(window=window,canvas=canvas,frame_canvas=login_canvas)
         agent_canvas = canvas.create_window(200, 80, window=agent.frame, anchor="nw")
         agent.frame_canvas = agent_canvas
 
+connection = mysql.connector.connect(host="127.0.0.1",port=3306, user="root",password="spiderman473")
+curr = connection.cursor()
+curr.execute("use matrix_real_estate")
 
 window = Tk()
 window.title("Real Estate Agency")
@@ -63,7 +90,7 @@ login_label.grid(row=0, column=0, columnspan=2, pady=10)
 canvas.grid(column=0, row=0)
 
 username_entry = Entry(login_frame, insertwidth=1, foreground="#d3d3d3", width=20,highlightthickness=2, highlightbackground="grey",justify=CENTER,font=("Courier",20,"normal"))
-username_entry.insert(0, "Agent ID")
+username_entry.insert(0, "Username")
 username_entry.bind("<Button-1>", on_username_click)
 username_entry.grid(row=1, column=0, columnspan=2, pady=5, padx=10)
 
