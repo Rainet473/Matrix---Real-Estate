@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-
+from database import *
 
 class Registration:
     def __init__(self, person, window, canvas, old_frame,frame_canvas, background):
@@ -83,9 +83,9 @@ class Registration:
             self.cpw_entry.grid(row=6, column=1, pady=(2, 10), padx=10)
 
         if self.person != "agent":
-            self.radio_value = StringVar(value="1")
-            Radiobutton(self.frame, text="Owner", variable=self.radio_value, value="1", bg="#273C28", fg="#fff").grid(row=9, column=0, pady=(2, 10), padx=(160, 10))
-            Radiobutton(self.frame, text="Purchaser", variable=self.radio_value, value="2", bg="#273C28", fg="#fff").grid(row=9, column=1, pady=(2, 10), padx=(10, 90))
+            self.radio_value = StringVar(value="sellers")
+            Radiobutton(self.frame, text="Owner", variable=self.radio_value, value="sellers", bg="#273C28", fg="#fff").grid(row=9, column=0, pady=(2, 10), padx=(160, 10))
+            Radiobutton(self.frame, text="Purchaser", variable=self.radio_value, value="buyers", bg="#273C28", fg="#fff").grid(row=9, column=1, pady=(2, 10), padx=(10, 90))
 
         self.registration_button = Button(self.frame, text="Register", highlightthickness=0, width=15, height=2,
                                           highlightbackground="#273C28", font=("Courier", 20, "bold"),
@@ -124,18 +124,24 @@ class Registration:
                 messagebox.showwarning("Password confirmation", "The password doesn't match with the confirm password.")
                 flag = 1
 
-       # check for unique id with database
-
+        # check for unique id with database
+        flag, message = register_user("agents" if self.person=="agent" else self.radio_value.get(),
+                              self.name_entry.get(), self.pn_entry.get(), self.email_entry.get(),
+                                self.aadhar_entry.get(), self.un_entry.get() if self.person=="agent" else "",
+                                  self.pw_entry.get() if self.person=="agent" else "")
         if flag == 0:
-            # Add to database
             # if self.radio_value.get() == 1 buyer otherwise seller
-            messagebox.showinfo("Registration", "Registered Successfully.")
+            messagebox.showinfo("Registration", "Registered Successfully.\nA Mail has been sent to you for confirmation.")
             self.canvas.itemconfig(self.frame_canvas, window=self.old_frame, anchor="nw", )
             if self.person == "agent":
                 self.canvas.coords(self.frame_canvas, 120, 100)
                 self.canvas.itemconfig(self.background, image=self.front_page_bg)
             else:
                 self.canvas.coords(self.frame_canvas, 200, 80)
+        elif flag==1:
+            messagebox.showwarning("Invalid Details", f"{message} already exists in the database!")
+        else:
+            messagebox.showwarning("Already Registered", f"{message}")
 
     def on_back_click(self):
         self.canvas.itemconfig(self.frame_canvas, window=self.old_frame, anchor="nw", )
