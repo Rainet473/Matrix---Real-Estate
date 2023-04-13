@@ -1,7 +1,7 @@
 from tkinter import *
 from registration import *
 from agent import *
-import mysql.connector
+from database import *
 
 def on_username_click(event):
     if username_entry.get() == "Username":
@@ -34,26 +34,18 @@ def on_login_click():
     username = username_entry.get()
     password = password_entry.get()
 
-    if username == '':
+    if username == '' or username == 'Username':
         messagebox.showinfo("Invalid Details", "Please enter Username")
         return
-    if password=='':
+    if password=='' or password == 'Password':
         messagebox.showinfo("Invalid Details", "Please enter Password")
         return    
 
-    curr.execute(f"select * from agents where username = '{username}'")
-    agent_info = curr.fetchall()
-    connection.commit()
+    flag, message, agent_info = login_agent(username, password)
 
-    if len(agent_info)==0:
-        messagebox.showwarning("Login Error", "Invalid Username!")
-        flag = 1
-    else:
-        agent_info = agent_info[0]
-        if agent_info[6] != password:
-            messagebox.showwarning("Login Error", "Incorrect Password!")
-            flag = 1
-        
+    if flag==1:
+        messagebox.showwarning("Login Error", message)
+
     # if username_entry.get() not in database or password_entry.get() does not match in database:
     #     messagebox.showwarning("Login Error", "Username or Password is invalid.")
     #     flag =1
@@ -66,9 +58,6 @@ def on_login_click():
         agent_canvas = canvas.create_window(200, 80, window=agent.frame, anchor="nw")
         agent.frame_canvas = agent_canvas
 
-connection = mysql.connector.connect(host="127.0.0.1",port=3306, user="root",password="spiderman473")
-curr = connection.cursor()
-curr.execute("use matrix_real_estate")
 
 window = Tk()
 window.title("Real Estate Agency")
