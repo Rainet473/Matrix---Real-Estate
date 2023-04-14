@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from database import *
+from email_sender import *
 
 class Registration:
     def __init__(self, person, window, canvas, old_frame,frame_canvas, background):
@@ -141,10 +142,12 @@ class Registration:
                 flag = 1
 
         # check for unique id with database
-        flag, message = register_user("agents" if self.person=="agent" else self.radio_value.get(),
-                              self.name_entry.get(), self.pn_entry.get(), self.email_entry.get(),
-                                self.aadhar_entry.get(), self.un_entry.get() if self.person=="agent" else "",
-                                  self.pw_entry.get() if self.person=="agent" else "")
+        if flag==0:
+            flag, message = register_user("agents" if self.person=="agent" else self.radio_value.get(),
+                                self.name_entry.get(), self.pn_entry.get(), self.email_entry.get(),
+                                    self.aadhar_entry.get(), self.un_entry.get() if self.person=="agent" else "",
+                                        self.pw_entry.get() if self.person=="agent" else "")
+            
         if flag == 0:
             # if self.radio_value.get() == 1 buyer otherwise seller
             messagebox.showinfo("Registration", "Registered Successfully.\nA Mail has been sent to you for confirmation.")
@@ -156,6 +159,14 @@ class Registration:
                 self.canvas.coords(self.frame_canvas, 200, 80)
         elif flag==1:
             messagebox.showwarning("Invalid Details", f"{message} already exists in the database!")
+        elif flag==2:
+            messagebox.showwarning("Already Registered", f"{message}")
+            self.canvas.itemconfig(self.frame_canvas, window=self.old_frame, anchor="nw", )
+            if self.person == "agent":
+                self.canvas.coords(self.frame_canvas, 120, 100)
+                self.canvas.itemconfig(self.background, image=self.front_page_bg)
+            else:
+                self.canvas.coords(self.frame_canvas, 200, 80)
         else:
             messagebox.showwarning("Already Registered", f"{message}")
 
