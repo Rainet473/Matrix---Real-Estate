@@ -1,10 +1,10 @@
 from tkinter import *
 from registration import *
 from agent import *
-
+from database import *
 
 def on_username_click(event):
-    if username_entry.get() == "Agent ID":
+    if username_entry.get() == "Username":
         username_entry.delete(0, "end")
         username_entry.config(foreground="#000000")
 
@@ -30,12 +30,28 @@ def on_sign_up_click():
 
 def on_login_click():
     flag = 0
+    global username, password
+    username = username_entry.get()
+    password = password_entry.get()
+
+    if username == '' or username == 'Username':
+        messagebox.showinfo("Invalid Details", "Please enter Username")
+        return
+    if password=='' or password == 'Password':
+        messagebox.showinfo("Invalid Details", "Please enter Password")
+        return    
+
+    flag, message, agent_info = login_agent(username, password)
+
+    if flag==1:
+        messagebox.showwarning("Login Error", message)
 
     # if username_entry.get() not in database or password_entry.get() does not match in database:
     #     messagebox.showwarning("Login Error", "Username or Password is invalid.")
     #     flag =1
 
     if flag == 0:
+        messagebox.showinfo("Login Successful", f"Welcome Back {agent_info[1].split()[0]}!")
         canvas.itemconfig(bg, image=next_page_bg)
         login_frame.destroy()
         agent = Agent(window=window,canvas=canvas,frame_canvas=login_canvas)
@@ -63,7 +79,7 @@ login_label.grid(row=0, column=0, columnspan=2, pady=10)
 canvas.grid(column=0, row=0)
 
 username_entry = Entry(login_frame, insertwidth=1, foreground="#d3d3d3", width=20,highlightthickness=2, highlightbackground="grey",justify=CENTER,font=("Courier",20,"normal"))
-username_entry.insert(0, "Agent ID")
+username_entry.insert(0, "Username")
 username_entry.bind("<Button-1>", on_username_click)
 username_entry.grid(row=1, column=0, columnspan=2, pady=5, padx=10)
 

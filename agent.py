@@ -91,7 +91,7 @@ class Agent:
         frame = Frame(self.window, bg="#273C28", highlightthickness=2, pady=10, padx=2, highlightbackground="grey", borderwidth=5)
         self.canvas.itemconfig(self.frame_canvas, window=frame, anchor="nw", )
         self.canvas.coords(self.frame_canvas, 80, 40)
-        ids = [1, 2, 3,7,8,9,0,7,6,6,7,7,89,89,89,89,56,8,8,8,8,8,8,8,8,8]
+        ids = [1, 2, 3,7,8,9,0,7,6,6,7,7,89,89,89,89,56,8,8,8,8,8,8,8,8,8] ##Obtain IDs
         Label(frame, text="Transaction Record", bg="#273C28", borderwidth=5, font=("Georgia", 30, "bold"),
                                fg="#fff").grid(row=0, column=0, columnspan=3, pady=(20,10), padx=20)
 
