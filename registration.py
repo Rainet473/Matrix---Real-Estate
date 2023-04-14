@@ -49,13 +49,13 @@ class Registration:
 
         self.aadhar_label = Label(self.frame, text="Aadhar number", fg="#fff", bg="#273C28",
                                   font=("Courier", 16, "underline"))
-        self.aadhar_label.grid(row=7, column=0, columnspan=2)
+        self.aadhar_label.grid(row=9, column=0, columnspan=2)
         self.aadhar_entry = Entry(self.frame, insertwidth=1, width=20, highlightthickness=2,
                                   highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"),
                                   foreground="#d3d3d3")
         self.aadhar_entry.insert(0, "xxxx-xxxx-xxxx")
         self.aadhar_entry.bind("<Button-1>", self.on_aadhar_click)
-        self.aadhar_entry.grid(row=8, column=0, pady=(2, 20), padx=10, columnspan=2)
+        self.aadhar_entry.grid(row=10, column=0, pady=(2, 20), padx=10, columnspan=2)
 
         if self.person == "agent":
             self.un_label = Label(self.frame, text="Username", fg="#fff", bg="#273C28",
@@ -82,19 +82,35 @@ class Registration:
                                    highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
             self.cpw_entry.grid(row=6, column=1, pady=(2, 10), padx=10)
 
+            self.locality_label = Label(self.frame, text="Locality", fg="#fff", bg="#273C28",
+                                  font=("Courier", 16, "underline"))
+            self.locality_label.grid(row=7, column=0, columnspan=column_span)
+
+            self.locality_entry = Entry(self.frame, insertwidth=1, width=20, highlightthickness=2,
+                                  highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
+            self.locality_entry.grid(row=8, column=0, pady=(2, 10), padx=10, columnspan=column_span)
+
+            self.city_label = Label(self.frame, text="City", fg="#fff", bg="#273C28",
+                                  font=("Courier", 16, "underline"))
+            self.city_label.grid(row=7, column=1, columnspan=column_span)
+
+            self.city_entry = Entry(self.frame, insertwidth=1, width=20, highlightthickness=2,
+                                  highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
+            self.city_entry.grid(row=8, column=1, pady=(2, 10), padx=10, columnspan=column_span)
+
         if self.person != "agent":
             self.radio_value = StringVar(value="1")
-            Radiobutton(self.frame, text="Owner", variable=self.radio_value, value="1", bg="#273C28", fg="#fff").grid(row=9, column=0, pady=(2, 10), padx=(160, 10))
-            Radiobutton(self.frame, text="Purchaser", variable=self.radio_value, value="2", bg="#273C28", fg="#fff").grid(row=9, column=1, pady=(2, 10), padx=(10, 90))
+            Radiobutton(self.frame, text="Owner", variable=self.radio_value, value="1", bg="#273C28", fg="#fff").grid(row=11, column=0, pady=(2, 10), padx=(160, 10))
+            Radiobutton(self.frame, text="Purchaser", variable=self.radio_value, value="2", bg="#273C28", fg="#fff").grid(row=11, column=1, pady=(2, 10), padx=(10, 90))
 
         self.registration_button = Button(self.frame, text="Register", highlightthickness=0, width=15, height=2,
                                           highlightbackground="#273C28", font=("Courier", 20, "bold"),
                                           command=self.on_register_click)
-        self.registration_button.grid(row=10, column=0, pady=(0, 5), columnspan=2)
+        self.registration_button.grid(row=12, column=0, pady=(0, 0), columnspan=2)
 
         self.back_button = Button(self.frame, text=" 🔙 ", highlightthickness=0, width=2, height=2,
                                   highlightbackground="#273C28", font=("Courier", 15, "bold"), command=self.on_back_click)
-        self.back_button.grid(row=11, column=1, pady=(5, 5), columnspan=1,padx=(260,20))
+        self.back_button.grid(row=13, column=1, pady=(0, 0), columnspan=1,padx=(260,20))
 
     def on_aadhar_click(self, event):
         if self.aadhar_entry.get() == "xxxx-xxxx-xxxx":
@@ -116,7 +132,7 @@ class Registration:
             flag = 1
 
         if self.person == "agent":
-            if (self.un_entry.get() == "" or self.pw_entry.get() == "" or self.cpw_entry.get() == "") and flag == 0:
+            if (self.un_entry.get() == "" or self.pw_entry.get() == "" or self.cpw_entry.get() == "" or self.city_entry.get() == "" or self.locality_entry.get() == "") and flag == 0:
                 messagebox.showwarning("Empty Entry", "Please enter all the fields.")
                 flag = 1
 

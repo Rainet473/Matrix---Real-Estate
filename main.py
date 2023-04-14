@@ -23,7 +23,7 @@ def on_sign_up_click():
     # reg_canvas = canvas.create_window(60, 60, window=agent_register.frame, anchor="nw")
     # canvas.update_idletasks()
     canvas.itemconfig(login_canvas, window=agent_register.frame, anchor="nw", )
-    canvas.coords(login_canvas, 40, 40)
+    canvas.coords(login_canvas, 40, 20)
     # canvas.delete(login_canvas)
     # canvas.itemconfig(bg, image=next_page_bg)
     # reg_canvas = canvas.create_window(60, 60, window=agent_register.frame, anchor="nw", )
