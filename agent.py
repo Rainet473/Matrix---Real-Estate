@@ -49,11 +49,11 @@ class Agent:
         self.canvas.coords(self.frame_canvas, 110, 110)
         Label(frame, text="Account Deactivation", bg="#273C28", borderwidth=5, font=("Georgia", 30, "bold"),
                                fg="#fff").grid(row=0, column=0, columnspan=2, pady=(20,30), padx=20)
+        self.radio_value = StringVar(value="buyers")
+        Radiobutton(frame, text="Owner", variable=self.radio_value, value="sellers", bg="#273C28", fg="#fff").grid( row=1, column=0, pady=(2, 10), padx=(140, 10))
+        Radiobutton(frame, text="Purchaser", variable=self.radio_value, value="buyers", bg="#273C28", fg="#fff").grid(row=1, column=1, pady=(2, 10), padx=(10, 100))
         # check radio_value then put buyer or seller ids in list
-        ids = [1, 2, 3,7,8,9,0,7,6,6,7,7,89,89,89,89,56,8,8,8,8,8,8,8,8,8]
-        self.radio_value = StringVar(value="1")
-        Radiobutton(frame, text="Owner", variable=self.radio_value, value="1", bg="#273C28", fg="#fff").grid( row=1, column=0, pady=(2, 10), padx=(140, 10))
-        Radiobutton(frame, text="Purchaser", variable=self.radio_value, value="2", bg="#273C28", fg="#fff").grid(row=1, column=1, pady=(2, 10), padx=(10, 100))
+        ids = list_assigned_customers(self.radio_value.get())
 
         deactivation_id = StringVar(value="Select Aadhar number")
         # OptionMenu(frame, deactivation_id, *ids).grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)

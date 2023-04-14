@@ -146,7 +146,9 @@ class Registration:
             flag, message = register_user("agents" if self.person=="agent" else self.radio_value.get(),
                                 self.name_entry.get(), self.pn_entry.get(), self.email_entry.get(),
                                     self.aadhar_entry.get(), self.un_entry.get() if self.person=="agent" else "",
-                                        self.pw_entry.get() if self.person=="agent" else "")
+                                        self.pw_entry.get() if self.person=="agent" else "",
+                                        f"{self.locality_entry.get()[0].upper()}{self.locality_entry.get()[1:]}, {self.city_entry.get()[0].upper()}{self.city_entry.get()[1:]}" if self.person=="agent"
+                                        else "")
             
         if flag == 0:
             # if self.radio_value.get() == 1 buyer otherwise seller
@@ -167,7 +169,7 @@ class Registration:
                 self.canvas.itemconfig(self.background, image=self.front_page_bg)
             else:
                 self.canvas.coords(self.frame_canvas, 200, 80)
-        else:
+        elif flag==3:
             messagebox.showwarning("Already Registered", f"{message}")
 
     def on_back_click(self):

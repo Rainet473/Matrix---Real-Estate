@@ -198,4 +198,3 @@ FROM availability where amount_per_month is not null;
 INSERT INTO sale_cost(selling_price)
 SELECT DISTINCT selling_price
 FROM availability where selling_price is not null;
-

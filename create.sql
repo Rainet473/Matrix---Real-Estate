@@ -15,7 +15,7 @@ Create table property (house_number varchar(10), Street varchar(50) NOT NULL, Ci
 
 Create table buyer_assigned (agent_id int NOT NULL, buyer_uid numeric(12,0), primary key(buyer_uid),FOREIGN KEY(agent_id) REFERENCES agents(agent_id) on delete cascade, FOREIGN KEY(buyer_uid) REFERENCES buyers(buyer_uid) on delete cascade);
 
-Create table seller_assigned (agent_id int , seller_uid numeric(12,0), Number_of_properties int, primary key(seller_uid,agent_id), FOREIGN KEY(agent_id) REFERENCES agents(agent_id) on delete cascade, FOREIGN KEY(seller_uid) REFERENCES sellers(seller_uid) on delete cascade);
+Create table seller_assigned (agent_id int , seller_uid numeric(12,0), Number_of_properties int DEFAULT 0, primary key(seller_uid,agent_id), FOREIGN KEY(agent_id) REFERENCES agents(agent_id) on delete cascade, FOREIGN KEY(seller_uid) REFERENCES sellers(seller_uid) on delete cascade);
 
 Create table availability (house_number varchar(10),  Pincode numeric(6,0), Sale varchar(3)  NOT NULL, Rent varchar(3)  NOT NULL, amount_per_month int, selling_price bigint, date_since_available date NOT NULL, primary key(house_number, Pincode),FOREIGN KEY(house_number, Pincode) REFERENCES property(house_number, Pincode) on delete cascade);
 

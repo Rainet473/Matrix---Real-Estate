@@ -1,4 +1,5 @@
 from email_sender import *
+from tkinter import messagebox
 
 def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'spiderman473', database= 'matrix_real_estate'):
     '''Establishes connection with local database, throws exception(not error) if connection not established'''
@@ -40,9 +41,9 @@ def login_agent(username, password):
 
     return 0, None, agent_info
 
-def register_user(user_type, name, mobile, email, aadhar, username, password, operating_area = "Garia, Kolkata"):
+def register_user(user_type, name, mobile, email, aadhar, username, password, operating_area):
     '''Function Used for Registration of Agent/Buyer/Seller'''
-
+    flag, message = 0, ""
     connection = establish_connection()
     curr = connection.cursor()
     
@@ -52,19 +53,20 @@ def register_user(user_type, name, mobile, email, aadhar, username, password, op
         curr.execute(f"Select * from {user_type} where unique_id = {aadhar}" if user_type=="agents"
                      else f"Select * from {user_type} where {user_type.rstrip('s')}_uid = {aadhar}")
         user_info = curr.fetchall()[0]
-
-        if user_type=="agents":
-            email_new_registration(user_type, email, user_info)
-        else:
-            email_new_registration(user_type, email, user_info, agent_assigned=agent_inf)
-        connection.commit()
+        try:
+            if user_type=="agents":
+                email_new_registration(user_type, email, user_info)
+            else:
+                email_new_registration(user_type, email, user_info, agent_assigned=agent_inf)
+            connection.commit()
+        except:
+            messagebox.showerror("Error Sending Mail", "There has been a error in sending a confirmation mail.\n Make sure your internet connection is running.")
+            return 4, ""
         if user_type=="agents":
             return 0, None
         else:
             return assign_customer(user_type, aadhar, name, mobile, email)
     except:
-        flag, message = 0, ""
-
         if user_type=="agents":
             curr.execute(f"Select * from {user_type} where username = '{username}'")
             result = curr.fetchall()
@@ -98,6 +100,7 @@ def register_user(user_type, name, mobile, email, aadhar, username, password, op
     return flag, message
 
 def assign_customer(user_type, aadhar, name, mobile, email, new=True):
+    '''Used to assign a new/existing customer with the logged in agent.'''
     connection = establish_connection()
     curr = connection.cursor()
     
@@ -112,7 +115,7 @@ def assign_customer(user_type, aadhar, name, mobile, email, new=True):
             return 3, f"Username is already assigned to Agent_ID {result[0][0]}"
         ##Otherwise assign it to agent (Global Variable)
         else:
-            curr.execute(f"Insert into {user_type.rstrip('s')}_assigned values({agentid}, {aadhar})")
+            curr.execute(f"Insert into {user_type.rstrip('s')}_assigned (agent_id, {user_type.rstrip('s')}_uid) values({agentid}, {aadhar})")
             email_assigned_customer(user_type, email, agent_inf[3], (aadhar, name, mobile, email), agent_inf, new= new)
             connection.commit()
             if new==False:
@@ -121,3 +124,17 @@ def assign_customer(user_type, aadhar, name, mobile, email, new=True):
                 return 0, None
     else:
         return 1, ""
+    
+def list_assigned_customers(customer_type, agent_id=-1):
+    '''Returns all the assigned customers with the mentioned agent id'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+    if agentid==0:
+        curr.execute(f"Select x.{customer_type.rstrip('s')}_uid, name from {customer_type} x join {customer_type.rstrip('s')}_assigned y on x.{customer_type.rstrip('s')}_uid = y.{customer_type.rstrip('s')}_uid where agent_id = {agentid}")
+    else:
+        curr.execute(f"Select x.{customer_type.rstrip('s')}_uid, name from {customer_type} x join {customer_type.rstrip('s')}_assigned y on x.{customer_type.rstrip('s')}_uid = y.{customer_type.rstrip('s')}_uid where agent_id = {agent_id}")
+    
+    assigned_customers = curr.fetchall()
+    for i in range(len(assigned_customers)):
+        assigned_customers[i] = ", ".join(assigned_customers[i])
