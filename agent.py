@@ -40,6 +40,10 @@ class Agent:
 
     def on_remove_click(self):
 
+        def drop_down_list():
+            combobox["values"] = list_assigned_customers(self.radio_value.get())
+            print(list_assigned_customers(self.radio_value.get()))
+
         def on_deactivate_click():
             # deactivation_id.get() remove fromm respective database
             self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
@@ -50,14 +54,16 @@ class Agent:
         Label(frame, text="Account Deactivation", bg="#273C28", borderwidth=5, font=("Georgia", 30, "bold"),
                                fg="#fff").grid(row=0, column=0, columnspan=2, pady=(20,30), padx=20)
         self.radio_value = StringVar(value="buyers")
-        Radiobutton(frame, text="Owner", variable=self.radio_value, value="sellers", bg="#273C28", fg="#fff").grid( row=1, column=0, pady=(2, 10), padx=(140, 10))
-        Radiobutton(frame, text="Purchaser", variable=self.radio_value, value="buyers", bg="#273C28", fg="#fff").grid(row=1, column=1, pady=(2, 10), padx=(10, 100))
+        Radiobutton(frame, text="Owner", variable=self.radio_value, value="sellers", bg="#273C28", fg="#fff", command=drop_down_list).grid( row=1, column=0, pady=(2, 10), padx=(140, 10))
+        Radiobutton(frame, text="Purchaser", variable=self.radio_value, value="buyers", bg="#273C28", fg="#fff", command=drop_down_list).grid(row=1, column=1, pady=(2, 10), padx=(10, 100))
         # check radio_value then put buyer or seller ids in list
-        ids = list_assigned_customers(self.radio_value.get())
+        # self.ids = list_assigned_customers(self.radio_value.get())
 
         deactivation_id = StringVar(value="Select Aadhar number")
         # OptionMenu(frame, deactivation_id, *ids).grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)
-        ttk.Combobox(frame, textvariable=deactivation_id, width=20, values=ids).grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)
+        combobox = ttk.Combobox(frame, textvariable=deactivation_id, width=20)
+        combobox.grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)
+        drop_down_list()
         Button(frame, text="Deactivate", highlightthickness=0, width=10, height=2,
                                          highlightbackground="#273C28", font=("Courier", 15, "bold"), command=on_deactivate_click).grid(row=3, column=0, pady=(10,10), padx=30, columnspan=2)
         Button(frame, text=" 🔙 ", highlightthickness=0, width=2, height=2, highlightbackground="#273C28", font=("Courier", 15, "bold"), command=self.on_back_click).grid(row=11, column=1, pady=(0, 5), columnspan=1,padx=(200,20))
@@ -68,7 +74,7 @@ class Agent:
 
     def on_transaction_click(self):
         def on_dot_click(event):
-            if self.dot.get() == "dd-mm-yyyy":
+            if self.dot.get() == "yyyy-mm-dd":
                 self.dot.delete(0, "end")
                 self.dot.config(foreground="#000000")
 
@@ -111,7 +117,7 @@ class Agent:
         self.dot = Entry(frame, insertwidth=1, width=15, foreground="#d3d3d3", highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
         self.dot.focus()
         self.dot.bind("<Button-1>", on_dot_click)
-        self.dot.insert(0, "dd-mm-yyyy")
+        self.dot.insert(0, "yyyy-mm-dd")
         self.dot.grid(row=4, column=1,pady=10)
 
         Label(frame, text="Price: ", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=5, column=0,padx=(0,30))
