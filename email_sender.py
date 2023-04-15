@@ -21,7 +21,7 @@ def email_assigned_customer(user_type, customer_mail, agent_mail, customer_info,
 
     subject = "New Assignment"
     yag = yagmail.SMTP({sender_email: "Matrix - Real Estate"},password=password)
-    contents = f"You have been assigned a new {user_type.rstrip('s')}.\n\n{user_type.rstrip('s')}'s Details are as follows:\nName: {customer_info[1]}\nMobile: {customer_info[2]}\nMail ID: {customer_info[3]}\n\n\n Regards.\nAdministrator\nMatrix - Real Estate"
+    contents = f"You have been assigned a new {user_type.rstrip('s')}.\n\n{user_type[0].upper()}{user_type.rstrip('s')[1:]}'s Details are as follows:\nName: {customer_info[1]}\nMobile: {customer_info[2]}\nMail ID: {customer_info[3]}\n\n\n Regards.\nAdministrator\nMatrix - Real Estate"
     yag.send(agent_mail, subject, contents)
 
     if new==False:
@@ -29,3 +29,18 @@ def email_assigned_customer(user_type, customer_mail, agent_mail, customer_info,
         customer_name = (customer_info[1].split(" "))[0]
         contents = f"Dear {customer_name}!\n\nYou have been assigned to our agent:\nAgent ID: {agent_info[0]}\nName: {agent_info[1]}\nMobile: {agent_info[2]}\n\nFeel Free to contact our agent within the working hours (9:00 to 17:00)\nWe are glad to have you back!\n\n\nRegards.\nAdministrator\nMatrix - Real Estate."
         yag.send(customer_mail, subject, contents)
+
+def email_unassigned_customer(user_type, customer_info, agent_info):
+    '''This is used to mail the customer who has been unassigned from the agent.'''
+
+    subject = "Unassigned Successfully"
+    customer_name = (customer_info[1].split(" "))[0]
+
+    contents = f"Dear {customer_name},\nYou have been successfully unassigned from our agent ({agent_info[1]}).\nWe hope you reach back to us again whenever you are to buy/rent/sell any properties.\n\n\nBest Wishes\nAdministrator\nMatrix - Real Estate"
+    yag.send(customer_info[3], subject, contents)
+
+def email_property_removed_to_owner(house_number, pincode, customer_mail):
+    '''This is used to mail the owner of the property that it has been removed from the available section.'''
+
+    subject = "Property Availablity Removed"
+    

@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox,ttk
+from database import *
 
 class Property:
     def __init__(self, window, canvas, frame_canvas, old_frame):
@@ -109,7 +110,7 @@ class Property:
 
             self.add_button = False
         self.canvas.coords(self.frame_canvas, 110, 80)
-        ids = ["1", "2", "3"]
+        ids = get_available_properties()
 
         Label(self.frame, text="Select Property:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=2, column=0,padx=(0,30),columnspan=2,pady=(30,5))
         self.property_remove = StringVar()
@@ -174,6 +175,10 @@ class Property:
 
     def on_remove_property_click(self):
         # self.property_remove.get() property to remove
-        messagebox.showinfo("Property", "Property removed Successfully.")
-        self.canvas.itemconfig(self.frame_canvas, window=self.old_frame, anchor="nw", )
-        self.canvas.coords(self.frame_canvas, 200, 80)
+        house_number, pincode = (self.property_remove.get()).split(", ")
+        flag = remove_available_property(house_number, pincode)
+        
+        if flag==0:
+            messagebox.showinfo("Property", "Property removed Successfully.\nAn Email has been sent to the owner for confirmation.")
+            self.canvas.itemconfig(self.frame_canvas, window=self.old_frame, anchor="nw", )
+            self.canvas.coords(self.frame_canvas, 200, 80)

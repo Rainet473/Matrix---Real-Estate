@@ -42,12 +42,15 @@ class Agent:
 
         def drop_down_list():
             combobox["values"] = list_assigned_customers(self.radio_value.get())
-            print(list_assigned_customers(self.radio_value.get()))
 
         def on_deactivate_click():
-            # deactivation_id.get() remove fromm respective database
-            self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
-            self.canvas.coords(self.frame_canvas, 200, 80)
+            # deactivation_id.get() remove from respective database
+            flag = unassign_customer(self.radio_value.get(), (deactivation_id.get()).split(", ")[1])
+            if flag==0:
+                messagebox.showinfo("Removal Successful", f"{(deactivation_id.get()).split()[0]} has been unassigned from you. An email has been sent to the customer for confirmation.")
+                self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
+                self.canvas.coords(self.frame_canvas, 200, 80)
+
         frame = Frame(self.window, bg="#273C28", highlightthickness=2, pady=10, padx=2, highlightbackground="grey", borderwidth=5)
         self.canvas.itemconfig(self.frame_canvas, window=frame, anchor="nw", )
         self.canvas.coords(self.frame_canvas, 110, 110)
@@ -61,7 +64,7 @@ class Agent:
 
         deactivation_id = StringVar(value="Select Aadhar number")
         # OptionMenu(frame, deactivation_id, *ids).grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)
-        combobox = ttk.Combobox(frame, textvariable=deactivation_id, width=20)
+        combobox = ttk.Combobox(frame, textvariable=deactivation_id, width=40)
         combobox.grid(row=2, column=0, pady=(20, 20), padx=(10, 10),columnspan=2)
         drop_down_list()
         Button(frame, text="Deactivate", highlightthickness=0, width=10, height=2,
