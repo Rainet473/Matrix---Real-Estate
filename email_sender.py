@@ -1,6 +1,8 @@
 import yagmail
-sender_email = "arijeetpcloud@gmail.com"
-password = "zzcmqcwvscfwwptk"
+#sender_email = "arijeetpcloud@gmail.com"
+sender_email = "testdevelop46675@gmail.com"
+#password = "zzcmqcwvscfwwptk"
+password = "hjmxhdlokgmktfrx"
 yag = yagmail.SMTP({sender_email: "Matrix - Real Estate"},password=password)
 
 
@@ -47,7 +49,7 @@ def email_property_removed_to_owner(house_number, pincode, customer_info):
     
     contents = f"Dear {customer_name},\nYour property (House Number: {house_number}, Pincode: {pincode}) has been successfully removed from the available section.\nWe hope you contact our agents again whenever you want to add a property.\n\n\nRegards\nAdministrator\nMatrix - Real Estate"
     yag.send(customer_info[3], subject, contents)
-    
+
 def email_added_property(customer_info, property_info):
     '''This will mail the seller that the information has been added/updated in the database'''
 
@@ -57,3 +59,15 @@ def email_added_property(customer_info, property_info):
     contents = f"Dear {customer_name},\nYour property has been added/updated in the database.\nYour property details are as follows:\n\nHouse Number: {property_info[0]}\nStreet: {property_info[1]}\nCity: {property_info[2]}\nLocality: {property_info[3]}\nPincode: {property_info[4]}\nArea(in sqft.): {property_info[5]}\nBedrooms: {property_info[6]}\nYear of Construction: {property_info[7]}\n\nFeel Free to contact your agent if any information is incorrect. We are glad to have you use our services.\n\n\nRegards\nAdministrator\nMatrix - Real Estate"
     yag.send(customer_info[3], subject, contents)
     
+def email_complete_transaction(seller_info, buyer_info, agent_info, house_details, price, transaction_type, transaction_date):
+    '''This will mail the seller and the buyer about the completed transaction'''
+
+    subject = "Transaction Successful"
+    buyer_name = buyer_info[1].split(" ")[0]
+    seller_name = seller_info[1].split(" ")[0]
+
+    contents = f"Dear {buyer_name},\nYour transaction for your house is complete. The details are as follows:\nHouse Number: {house_details[0]}\nStreet: {house_details[1]}\nCity: {house_details[2]}\nLocality: {house_details[3]}\nPincode: {house_details[4]}\nArea: {house_details[5]}\nBedrooms: {house_details[6]}\nSeller Name: {seller_info[1]}\nBuyer Name: {buyer_info[1]}\nAgent Name: {agent_info[1]}\n\nWe are glad you contacted our company. We look forward for further purchases with you.\n\n\nBest Wishes\nAdministrator\nMatrix - Real Estate"
+    yag.send(buyer_info[3], subject, contents)
+    contents = f"Dear {seller_name},\nYour transaction for your house is complete. The details are as follows:\nHouse Number: {house_details[0]}\nStreet: {house_details[1]}\nCity: {house_details[2]}\nLocality: {house_details[3]}\nPincode: {house_details[4]}\nArea: {house_details[5]}\nBedrooms: {house_details[6]}\nSeller Name: {seller_info[1]}\nBuyer Name: {buyer_info[1]}\nAgent Name: {agent_info[1]}\n\nWe are glad you contacted our company. We look forward for further purchases with you.\n\n\nBest Wishes\nAdministrator\nMatrix - Real Estate"
+    yag.send(seller_info[3], subject, contents)
+

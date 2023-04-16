@@ -117,7 +117,7 @@ def assign_customer(user_type, aadhar, name, mobile, email, new=True):
         ##Otherwise assign it to agent (Global Variable)
         else:
             curr.execute(f"Insert into {user_type.rstrip('s')}_assigned (agent_id, {user_type.rstrip('s')}_uid) values({agentid}, {aadhar})")
-           # email_assigned_customer(user_type, email, agent_inf[3], (aadhar, name, mobile, email), agent_inf, new= new)
+            email_assigned_customer(user_type, email, agent_inf[3], (aadhar, name, mobile, email), agent_inf, new= new)
             connection.commit()
             if new==False:
                 return 2, f"{user_type.rstrip('s')} is already registered. He/She has been assigned to you.\nAn Email has been sent for confirmation."
@@ -186,7 +186,7 @@ def unassign_customer(customer_type, customer_uid):
     
     curr.execute(f"Select * from {customer_type} where {customer_type.rstrip('s')}_uid = {customer_uid}")
 
-    #email_unassigned_customer(customer_type, curr.fetchone(), agent_inf)
+    email_unassigned_customer(customer_type, curr.fetchone(), agent_inf)
     curr.fetchall()
     connection.commit()
     return 0
@@ -197,9 +197,9 @@ def remove_available_property(house_number, pincode):
     connection = establish_connection()
     curr = connection.cursor()
 
-    curr.execute(f"select DISTINCT amount_per_month from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+    curr.execute(f"select DISTINCT amount_per_month from availability where (house_number, pincode) = ('{house_number}', {pincode}) and amount_per_month IS NOT NULL")
     rent_costs = curr.fetchall()
-    curr.execute(f"select DISTINCT selling_price from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+    curr.execute(f"select DISTINCT selling_price from availability where (house_number, pincode) = ('{house_number}', {pincode}) and selling_price IS NOT NULL")
     sale_costs = curr.fetchall()
 
     try:
@@ -226,7 +226,7 @@ def remove_available_property(house_number, pincode):
                 curr.execute(f"Delete from sale_cost where selling_price = {i[0]}")
     
     curr.execute(f"Select * from sellers where seller_uid = (select seller_uid from owns where (house_number, pincode) = ('{house_number}', {pincode}))")
-    #email_property_removed_to_owner(house_number, pincode, curr.fetchone())
+    email_property_removed_to_owner(house_number, pincode, curr.fetchone())
     curr.fetchall()
     connection.commit()
     return 0
@@ -287,7 +287,7 @@ def add_new_property(house_number, street, city, locality, pincode, area, bedroo
                 curr.execute(f"Insert into sale_cost values({sale_price})")
         
         curr.execute(f"select * from sellers where seller_uid = {seller_uid}")
-        #email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
+        email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
         curr.fetchall()
         connection.commit()
         return 0
@@ -327,7 +327,7 @@ def add_existing_property(house_number, street, city, locality, pincode, area, b
                 curr.execute(f"Insert into sale_cost values({sale_price})")
 
         curr.execute(f"select * from sellers where seller_uid = {seller_uid}")
-       # email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
+        email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
         curr.fetchall()
         connection.commit()
         return 0
@@ -377,3 +377,63 @@ def get_rent_report(agent_id = "-1, 0"):
     connection.commit()
     return agents
 
+def perform_transaction(buyer_id, seller_id, house_number, pincode, transaction_date, price, transaction_type):
+    '''This function performs the transaction for a property being sold/rented.'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+    #print(buyer_id, seller_id, house_number, pincode, transaction_date, price, transaction_type)
+    ##Check if seller owns the property id
+    curr.execute(f"Select * from owns where seller_uid = {seller_id} and house_number = '{house_number}' and pincode = {pincode}")
+    result = curr.fetchall()
+    if len(result)==0:
+        messagebox.showerror("Invalid Entry", "Seller does not own the house\nPlease enter valid details")
+        return 1
+    
+    try:
+        curr.execute(f"Select DATEDIFF('{transaction_date}', date_since_available) from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+        time_on_market = curr.fetchone()
+        if int(time_on_market[0])<0:
+            messagebox.showerror("Date error", "The entered transaction date must be after the date since available")
+            return 1
+        
+        curr.execute(f"Select Sale, Rent from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+        result = curr.fetchone()
+        if transaction_type=='SOLD':
+            if result[0]=='no':
+                messagebox.showerror("Property not available", "The property is not available for sale.")
+                return 1
+        elif transaction_type=='RENT':
+            if result[1]=='no':
+                messagebox.showerror("Property not available", "The property is not available for rent.")
+                return 1
+            
+        time_on_market = time_on_market[0]
+        curr.execute(f"Insert into real_estate_transactions values({agentid}, {buyer_id}, {seller_id}, '{house_number}', {pincode}, {price}, '{transaction_type}', {time_on_market},'{transaction_date}')")
+        
+        flag = remove_available_property(house_number, pincode)
+        if flag==0:
+            curr.execute(f"delete from seller_assigned where Number_of_properties=0")
+            #num = curr.fetchone()
+            #print(num)
+            #if(curr.fetchone()[0]=="0"):
+            #    flag = unassign_customer("sellers", seller_id)
+            #    print("Seller Unassigned")
+        if flag==0:
+            flag = unassign_customer("buyers", buyer_id)
+        if flag==0:
+            curr.execute(f"Delete from owns where (seller_uid, house_number, Pincode) = ({seller_id}, '{house_number}', {pincode})")
+    
+        curr.execute(f"select * from sellers where seller_uid = {seller_id}")
+        seller_info = curr.fetchone()
+        curr.execute(f"Select * from buyers where buyer_uid = {buyer_id}")
+        buyer_info = curr.fetchone()
+        curr.execute(f"Select * from property where (house_number, pincode) = ('{house_number}', {pincode})")
+        house_details = curr.fetchone()
+
+        email_complete_transaction(seller_info, buyer_info, agent_inf, house_details, price, transaction_type, transaction_date)
+        connection.commit()
+        return 0
+    except:
+        messagebox.showerror("Error Adding Property", "There has been some error with adding the property to the database.\nIt might be due to error in connection with the database.\nPlease try again later")   
+        return 1

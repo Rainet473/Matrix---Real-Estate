@@ -1,5 +1,12 @@
 -- Active: 1674189764067@@127.0.0.1@3306@matrix_real_estate
 
+Delete from agents;
+delete from buyers;
+delete from sellers;
+delete from property;
+delete from rent_cost;
+delete from sale_cost;
+ALTER TABLE agents auto_increment=0;
 INSERT INTO agents (name, phone_number, mail_id, unique_id, username, password, operating_area) VALUES
 ('Amit Sharma', 9087654321, 'amit.sharma@gmail.com', 123456782312, 'amit.sharma', 'Password1', 'Park Street, Kolkata'),
 ('Riya Chakraborty', 9898765432, 'riya.c@gmail.com', 234567890123, 'riya.chakraborty', 'Chakraborty1', 'Gariahat, Kolkata'),

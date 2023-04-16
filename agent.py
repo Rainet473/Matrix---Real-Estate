@@ -88,10 +88,21 @@ class Agent:
                 messagebox.showwarning("Empty Entry", "Please enter all the fields.")
                 flag = 1
 
-            if not (self.dot.get().isdigit() and self.price.get().isdigit()) and flag == 0:
+            if not (self.price.get().isdigit()) and flag == 0:
                 messagebox.showwarning("Value error", "Fill the details properly.")
                 flag = 1
-
+            
+            if len(self.dot.get())!=10 and flag == 0:
+                messagebox.showwarning("Invalid Date Entry", "Please enter the date in correct format (yyyy-mm-dd)\nInclude the hyphens as well")
+                flag = 1
+            elif flag==0:
+                if self.dot.get()[4]!='-' or self.dot.get()[7]!='-' or self.dot.get()[:4].isdigit()==False or self.dot.get()[5:7].isdigit()==False or self.dot.get()[8:].isdigit()==False:
+                    messagebox.showwarning("Invalid Date Entry", "Please enter the date in correct format (yyyy-mm-dd)\nInclude the hyphens as well")
+                    flag = 1
+            
+            if flag==0:
+                flag = perform_transaction(buyer_id.get().split(", ")[1], seller_id.get().split(", ")[1], property.get().split(", ")[0], property.get().split(", ")[1], self.dot.get(), self.price.get(), self.radio_value.get())
+            
             if flag == 0:
                 messagebox.showinfo("Transaction", "Transaction recorded successfully.")
                 self.canvas.itemconfig(self.frame_canvas, window=self.frame, anchor="nw", )
@@ -100,21 +111,23 @@ class Agent:
         frame = Frame(self.window, bg="#273C28", highlightthickness=2, pady=10, padx=2, highlightbackground="grey", borderwidth=5)
         self.canvas.itemconfig(self.frame_canvas, window=frame, anchor="nw", )
         self.canvas.coords(self.frame_canvas, 80, 40)
-        ids = [1, 2, 3,7,8,9,0,7,6,6,7,7,89,89,89,89,56,8,8,8,8,8,8,8,8,8] ##Obtain IDs
+        buyer_ids = list_assigned_customers("buyers") ##Obtain IDs
+        seller_ids = list_assigned_customers("sellers")
+        properties = get_available_properties()
         Label(frame, text="Transaction Record", bg="#273C28", borderwidth=5, font=("Georgia", 30, "bold"),
                                fg="#fff").grid(row=0, column=0, columnspan=3, pady=(20,10), padx=20)
 
         Label(frame, text="Purchaser's id:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=1, column=0,padx=(0,30))
         buyer_id = StringVar()
-        ttk.Combobox(frame, textvariable=buyer_id, width=20, values=ids).grid(row=1, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
+        ttk.Combobox(frame, textvariable=buyer_id,height= 3, width=30, values=buyer_ids, font=("Courier", 12, "bold")).grid(row=1, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
 
         Label(frame, text="Owner's id:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=2, column=0,padx=(0,30))
         seller_id = StringVar()
-        ttk.Combobox(frame, textvariable=seller_id, width=20, values=ids).grid(row=2, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
+        ttk.Combobox(frame, textvariable=seller_id,height= 3, width=30, values=seller_ids, font=("Courier", 12, "bold")).grid(row=2, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
 
         Label(frame, text="Select Property:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=3, column=0,padx=(0,30))
         property = StringVar()
-        ttk.Combobox(frame, textvariable=property, width=20, values=ids).grid(row=3, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
+        ttk.Combobox(frame, textvariable=property,height=3, width=30, values=properties, font=("Courier", 12, "bold")).grid(row=3, column=1, pady=(10, 10), padx=(10, 10),columnspan=2)
 
         Label(frame, text="Date of Transaction:", fg="#fff", bg="#273C28", font=("Courier", 18, "bold")).grid(row=4, column=0,padx=(20,30))
         self.dot = Entry(frame, insertwidth=1, width=15, foreground="#d3d3d3", highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
@@ -127,9 +140,9 @@ class Agent:
         self.price = Entry(frame, insertwidth=1, width=15, highlightthickness=2, highlightbackground="grey", justify=CENTER, font=("Courier", 20, "normal"))
         self.price.grid(row=5, column=1,pady=(10,20))
 
-        self.radio_value = StringVar(value="1")
-        Radiobutton(frame, text="Rent", variable=self.radio_value, value="1", bg="#273C28", fg="#fff", font= ("Courier", 18, "normal")).grid(row=6, column=0,pady=(2, 10),padx=(80, 20))
-        Radiobutton(frame, text="Sale", variable=self.radio_value, value="2", bg="#273C28", fg="#fff", font= ("Courier", 18, "normal")).grid(row=6,column=1,pady=(2, 10),padx=(20, 80))
+        self.radio_value = StringVar(value="RENT")
+        Radiobutton(frame, text="Rent", variable=self.radio_value, value="RENT", bg="#273C28", fg="#fff", font= ("Courier", 18, "normal")).grid(row=6, column=0,pady=(2, 10),padx=(80, 20))
+        Radiobutton(frame, text="Sale", variable=self.radio_value, value="SOLD", bg="#273C28", fg="#fff", font= ("Courier", 18, "normal")).grid(row=6,column=1,pady=(2, 10),padx=(20, 80))
         Button(frame, text="Record", highlightthickness=0, width=10, height=2,
                                          highlightbackground="#273C28", font=("Courier", 15, "bold"), command=on_record_click).grid(row=7, column=0, pady=(5,5), padx=30, columnspan=2)
         Button(frame, text=" 🔙 ", highlightthickness=0, width=2, height=2, highlightbackground="#273C28", font=("Courier", 15, "bold"), command=self.on_back_click).grid(row=8, column=1, pady=(0, 5), columnspan=1,padx=(200,20))

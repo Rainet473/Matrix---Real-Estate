@@ -83,7 +83,7 @@ class Property:
         #self.sid.grid(row=4, column=0, pady=(2, 10), padx=(20,10), columnspan=3)
         self.sid = StringVar()
         ids = list_assigned_customers("sellers")
-        combobox_sid = ttk.Combobox(self.frame, textvariable=self.sid, width=30, values=ids,height=3)
+        combobox_sid = ttk.Combobox(self.frame, textvariable=self.sid, width=30, values=ids,height=4)
         combobox_sid['state'] = 'readonly'
         combobox_sid.grid(row=4, column=0, pady=(2, 10), padx=(20,10), columnspan=3)
         type = ["Sale", "Rent", "Both"]
