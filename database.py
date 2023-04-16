@@ -1,7 +1,7 @@
 from email_sender import *
 from tkinter import messagebox
 
-def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'spiderman473', database= 'matrix_real_estate'):
+def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'matlani01k', database= 'matrix_real_estate'):
     '''Establishes connection with local database, throws exception(not error) if connection not established'''
     import mysql.connector as cntr
     from mysql.connector import Error
@@ -241,3 +241,47 @@ def get_available_properties(agent_id = -1):
     
     connection.commit()
     return properties
+
+
+def get_agent_ids():
+    '''This function returns all the agent_ids'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+
+    curr.execute(f"select agent_id, name from agents")
+    agents = curr.fetchall()
+
+    for i in range(len(agents)):
+        agents[i] = f"{agents[i][0]}, {agents[i][1]}"
+
+    connection.commit()
+    return agents
+
+def get_sale_report(agent_id = "-1, 0"):
+    '''This function returns the details of property sold by given agent_id'''
+    agent_id = agent_id.split(", ")
+    agent_id = int(agent_id[0])
+    connection = establish_connection()
+    curr = connection.cursor()
+
+    curr.execute(f"select house_number,street,locality,city,price,transaction_date from real_estate_transactions natural join property where type='SOLD' and agent_id={agent_id if agent_id==-1 else agent_id }")
+    agents = curr.fetchall()
+
+    connection.commit()
+    return agents
+
+def get_rent_report(agent_id = "-1, 0"):
+    '''This function returns the details of property rented by given agent_id'''
+
+    agent_id = agent_id.split(", ")
+    agent_id = int(agent_id[0])
+    connection = establish_connection()
+    curr = connection.cursor()
+
+    curr.execute(f"select house_number,street,locality,city,price,transaction_date from real_estate_transactions natural join property where type='RENT' and agent_id={agent_id if agent_id==-1 else agent_id }")
+    agents = curr.fetchall()
+
+    connection.commit()
+    return agents
+
