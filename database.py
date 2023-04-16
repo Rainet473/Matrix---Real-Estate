@@ -1,7 +1,8 @@
 from email_sender import *
 from tkinter import messagebox
+from datetime import datetime
 
-def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'matlani01k', database= 'matrix_real_estate'):
+def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'spiderman473', database= 'matrix_real_estate'):
     '''Establishes connection with local database, throws exception(not error) if connection not established'''
     import mysql.connector as cntr
     from mysql.connector import Error
@@ -116,7 +117,7 @@ def assign_customer(user_type, aadhar, name, mobile, email, new=True):
         ##Otherwise assign it to agent (Global Variable)
         else:
             curr.execute(f"Insert into {user_type.rstrip('s')}_assigned (agent_id, {user_type.rstrip('s')}_uid) values({agentid}, {aadhar})")
-            email_assigned_customer(user_type, email, agent_inf[3], (aadhar, name, mobile, email), agent_inf, new= new)
+           # email_assigned_customer(user_type, email, agent_inf[3], (aadhar, name, mobile, email), agent_inf, new= new)
             connection.commit()
             if new==False:
                 return 2, f"{user_type.rstrip('s')} is already registered. He/She has been assigned to you.\nAn Email has been sent for confirmation."
@@ -185,7 +186,8 @@ def unassign_customer(customer_type, customer_uid):
     
     curr.execute(f"Select * from {customer_type} where {customer_type.rstrip('s')}_uid = {customer_uid}")
 
-    email_unassigned_customer(customer_type, curr.fetchone(), agent_inf)
+    #email_unassigned_customer(customer_type, curr.fetchone(), agent_inf)
+    curr.fetchall()
     connection.commit()
     return 0
 
@@ -202,6 +204,7 @@ def remove_available_property(house_number, pincode):
 
     try:
         curr.execute(f"Delete from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+        curr.execute(f"Update seller_assigned set Number_of_properties=Number_of_properties-1 where seller_uid = (Select seller_uid from sellers where seller_uid = (select seller_uid from owns where (house_number, pincode) = ('{house_number}', {pincode})))")
     except:
         messagebox.showerror("Error Unassigning", "There has been some error with unassigning the customer from the database.\nIt might be due to error in connection with the database.\nPlease try again later")   
         return 1
@@ -222,8 +225,9 @@ def remove_available_property(house_number, pincode):
             if len(result)==0:
                 curr.execute(f"Delete from sale_cost where selling_price = {i[0]}")
     
-    curr.execute(f"Select mail_id from sellers where seller_uid = (select seller_uid from owns where (house_number, pincode) = ('{house_number}', {pincode}))")
-    email_property_removed_to_owner(house_number, pincode, curr.fetchone()[0])
+    curr.execute(f"Select * from sellers where seller_uid = (select seller_uid from owns where (house_number, pincode) = ('{house_number}', {pincode}))")
+    #email_property_removed_to_owner(house_number, pincode, curr.fetchone())
+    curr.fetchall()
     connection.commit()
     return 0
 
@@ -242,6 +246,94 @@ def get_available_properties(agent_id = -1):
     connection.commit()
     return properties
 
+
+def add_property(house_number, street, city, locality, pincode, area, bedrooms, year_of_construction, seller_uid, sale_price, rent_price, sale_type):
+    '''This function adds the property to available whether new/old'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+
+    curr.execute(f"Select * from property where (house_number, pincode) = ('{house_number}', {pincode})")
+    house = curr.fetchall()
+    
+    if len(house)==0:
+        return add_new_property(house_number, street, city, locality, pincode, area, bedrooms, year_of_construction, seller_uid, sale_price, rent_price, sale_type)
+    else:
+        messagebox.showinfo("Property already Exists", "The entered property details already exists in the database\nWe will try to update the information.")
+        return add_existing_property(house_number, street, city, locality, pincode, area, bedrooms, year_of_construction, sale_price, rent_price, sale_type)
+
+def add_new_property(house_number, street, city, locality, pincode, area, bedrooms, year_of_construction, seller_uid, sale_price, rent_price, sale_type):
+    '''This is a part of add_property that adds properties which do not belong to the property table'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+    date_today = datetime.today().strftime('%Y-%m-%d')
+    try:
+        curr.execute(f"Insert into property values('{house_number}', '{street}', '{city}', '{locality}', {pincode}, {area}, {bedrooms}, {year_of_construction})")
+        curr.execute(f"Insert into owns values({seller_uid}, '{house_number}', {pincode})")
+        curr.execute(f"Update seller_assigned set Number_of_properties = Number_of_properties + 1 where (agent_id, seller_uid) = ({agentid}, {seller_uid})")
+        curr.execute(f"Insert into availability values('{house_number}', {pincode}, 'yes', 'yes', {rent_price}, {sale_price}, '{date_today}')" if sale_type=="Both"
+                    else f"Insert into availability values('{house_number}', {pincode}, 'yes', 'no', NULL, {sale_price}, '{date_today}')" if sale_type=="Sale"
+                    else f"Insert into availability values('{house_number}', {pincode}, 'no', 'yes', {rent_price}, NULL, '{date_today}')")
+            
+        if rent_price!="":
+            curr.execute(f"Select * from rent_cost where amount_per_month = {rent_price}")
+            if len(curr.fetchall())==0:
+                curr.execute(f"Insert into rent_cost values({rent_price})")
+
+        if sale_price!="":
+            curr.execute(f"Select * from sale_cost where selling_price = {sale_price}")
+            if len(curr.fetchall())==0:
+                curr.execute(f"Insert into sale_cost values({sale_price})")
+        
+        curr.execute(f"select * from sellers where seller_uid = {seller_uid}")
+        #email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
+        curr.fetchall()
+        connection.commit()
+        return 0
+    except:
+        messagebox.showerror("Error Adding Property", "There has been some error with adding the property to the database.\nIt might be due to error in connection with the database.\nPlease try again later")   
+        return 1  
+
+def add_existing_property(house_number, street, city, locality, pincode, area, bedrooms, year_of_construction, seller_uid, sale_price, rent_price, sale_type):
+    '''This modifies and adds the existing property into the property table'''
+
+    connection = establish_connection()
+    curr = connection.cursor()
+
+    date_today = datetime.today().strftime('%Y-%m-%d')
+    try:
+        curr.execute(f"Update property set street='{street}', city='{city}', locality='{locality}', area={area}, bedrooms={bedrooms}, year_of_construction={year_of_construction} where (house_number, pincode) = ('{house_number}', {pincode})")
+        curr.execute(f"Select * from availability where (house_number, pincode) = ('{house_number}', {pincode})")
+        result = curr.fetchall()
+        if len(result)!=0:
+            curr.execute(f"Update availability set sale='yes', rent='yes', amount_per_month={rent_price}, selling_price = {sale_price} where (house_number, pincode) = ('{house_number}', {pincode})" if sale_type=="Both"
+                         else f"Update availability set sale='yes', rent='no', amount_per_month=NULL, selling_price = {sale_price} where (house_number, pincode) = ('{house_number}', {pincode})" if sale_type=="Sale"
+                         else f"Update availability set sale='no', rent='yes', amount_per_month={rent_price}, selling_price = NULL where (house_number, pincode) = ('{house_number}', {pincode})")
+        else:
+            curr.execute(f"Insert into availability values('{house_number}', {pincode}, 'yes', 'yes', {rent_price}, {sale_price}, '{date_today}')" if sale_type=="Both"
+                     else f"Insert into availability values('{house_number}', {pincode}, 'yes', 'no', NULL, {sale_price}, '{date_today}')" if sale_type=="Sale"
+                     else f"Insert into availability values('{house_number}', {pincode}, 'no', 'yes', {rent_price}, NULL, '{date_today}')")
+        
+
+        if rent_price!="":
+            curr.execute(f"Select * from rent_cost where amount_per_month = {rent_price}")
+            if len(curr.fetchall())==0:
+                curr.execute(f"Insert into rent_cost values({rent_price})")
+
+        if sale_price!="":
+            curr.execute(f"Select * from sale_cost where selling_price = {sale_price}")
+            if len(curr.fetchall())==0:
+                curr.execute(f"Insert into sale_cost values({sale_price})")
+
+        curr.execute(f"select * from sellers where seller_uid = {seller_uid}")
+       # email_added_property(curr.fetchone(), (house_number, street, city, locality, pincode, area, bedrooms, year_of_construction))
+        curr.fetchall()
+        connection.commit()
+        return 0
+    except:
+        messagebox.showerror("Error Adding Property", "There has been some error with adding the property to the database.\nIt might be due to error in connection with the database.\nPlease try again later")   
+        return 1
 
 def get_agent_ids():
     '''This function returns all the agent_ids'''

@@ -39,8 +39,21 @@ def email_unassigned_customer(user_type, customer_info, agent_info):
     contents = f"Dear {customer_name},\nYou have been successfully unassigned from our agent ({agent_info[1]}).\nWe hope you reach back to us again whenever you are to buy/rent/sell any properties.\n\n\nBest Wishes\nAdministrator\nMatrix - Real Estate"
     yag.send(customer_info[3], subject, contents)
 
-def email_property_removed_to_owner(house_number, pincode, customer_mail):
+def email_property_removed_to_owner(house_number, pincode, customer_info):
     '''This is used to mail the owner of the property that it has been removed from the available section.'''
 
     subject = "Property Availablity Removed"
+    customer_name = (customer_info[1].split(" "))[0]
+    
+    contents = f"Dear {customer_name},\nYour property (House Number: {house_number}, Pincode: {pincode}) has been successfully removed from the available section.\nWe hope you contact our agents again whenever you want to add a property.\n\n\nRegards\nAdministrator\nMatrix - Real Estate"
+    yag.send(customer_info[3], subject, contents)
+    
+def email_added_property(customer_info, property_info):
+    '''This will mail the seller that the information has been added/updated in the database'''
+
+    subject = "Property Added"
+    customer_name = (customer_info[1].split(" "))[0]
+
+    contents = f"Dear {customer_name},\nYour property has been added/updated in the database.\nYour property details are as follows:\n\nHouse Number: {property_info[0]}\nStreet: {property_info[1]}\nCity: {property_info[2]}\nLocality: {property_info[3]}\nPincode: {property_info[4]}\nArea(in sqft.): {property_info[5]}\nBedrooms: {property_info[6]}\nYear of Construction: {property_info[7]}\n\nFeel Free to contact your agent if any information is incorrect. We are glad to have you use our services.\n\n\nRegards\nAdministrator\nMatrix - Real Estate"
+    yag.send(customer_info[3], subject, contents)
     

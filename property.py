@@ -78,9 +78,14 @@ class Property:
         self.bedrooms.grid(row=10, column=1, pady=(2, 10), padx=(5,5), columnspan=1)
 
         Label(self.frame, text="Owner's Aadhar number", fg="#fff", bg="#273C28", font=("Courier", 16, "underline")).grid(row=3, column=0, columnspan=3,pady=(5,0),padx=(25,10))
-        self.sid = Entry(self.frame, insertwidth=1, width=20, highlightthickness=2, highlightbackground="grey",
-                                justify=CENTER, font=("Courier", 20, "normal"))
-        self.sid.grid(row=4, column=0, pady=(2, 10), padx=(20,10), columnspan=3)
+        #self.sid = Entry(self.frame, insertwidth=1, width=20, highlightthickness=2, highlightbackground="grey",
+        #                        justify=CENTER, font=("Courier", 20, "normal"))
+        #self.sid.grid(row=4, column=0, pady=(2, 10), padx=(20,10), columnspan=3)
+        self.sid = StringVar()
+        ids = list_assigned_customers("sellers")
+        combobox_sid = ttk.Combobox(self.frame, textvariable=self.sid, width=30, values=ids,height=3)
+        combobox_sid['state'] = 'readonly'
+        combobox_sid.grid(row=4, column=0, pady=(2, 10), padx=(20,10), columnspan=3)
         type = ["Sale", "Rent", "Both"]
         self.sale_label = Label(self.frame, text="Selling Amount", fg="#fff", bg="#273C28", font=("Courier", 16, "underline"))
         self.sale_price = Entry(self.frame, insertwidth=1, width=13, highlightthickness=2, highlightbackground="grey",
@@ -144,7 +149,7 @@ class Property:
 
     def on_add_property_click(self):
         flag = 0
-        if self.house_number.get() == "" or self.street.get() == "" or self.locality.get() == "" or self.city.get() == "" or self.pincode.get() == ""or self.yoc.get() == ""or self.area.get() == ""or self.bedrooms.get() == ""or self.sid.get() == "":
+        if self.house_number.get() == "" or self.street.get() == "" or self.locality.get() == "" or self.city.get() == "" or self.pincode.get() == ""or self.yoc.get() == ""or self.area.get() == ""or self.bedrooms.get() == "":
             messagebox.showwarning("Empty Entry", "Please enter all the fields.")
             flag = 1
 
@@ -152,18 +157,38 @@ class Property:
             messagebox.showwarning("PINCODE", "Please enter 6 digit Pincode.")
             flag = 1
 
-        if len(self.sid.get()) != 12 and flag == 0:
-            messagebox.showwarning("Aadhar number", "Please enter 12 digit Aadhar number.")
-            flag = 1
+        #if len(self.sid.get()) != 12 and flag == 0:
+        #    messagebox.showwarning("Aadhar number", "Please enter 12 digit Aadhar number.")
+        #    flag = 1
 
         if len(self.yoc.get()) != 4 and flag == 0:
             messagebox.showwarning("Year of construction", "Please enter 4 digit Year of construction.")
             flag = 1
 
-        if not (self.bedrooms.get().isdigit() and self.pincode.get().isdigit() and self.area.get().isdigit()  and self.sid.get().isdigit()) and flag == 0:
+        if not (self.bedrooms.get().isdigit() and self.pincode.get().isdigit() and self.area.get().isdigit()) and flag == 0:
             messagebox.showwarning("Value error", "Fill the details properly.")
             flag = 1
+        
+        if self.availability.get()=="" and flag==0:
+            messagebox.showwarning("Enter Availability", "Please enter whether you want to sell, rent or both")
+            flag = 1
+        elif self.availability.get()=="Sale" and flag==0:
+            if self.sale_price.get()=="" or self.sale_price.get().isnumeric()==False:
+                messagebox.showwarning("Invalid/Incomplete Details", "There may be an error due to invalid details entered or details not entered.\nPlease Check")
+                flag = 1
+        elif self.availability.get()=="Rent" and flag==0:
+            if self.rent_price.get()=="" or self.rent_price.get().isnumeric()==False:
+                messagebox.showwarning("Invalid/Incomplete Details", "There may be an error due to invalid details entered or details not entered.\nPlease Check")
+                flag = 1
+        elif self.availability.get()=="Both" and flag==0:
+            if self.sale_price.get()=="" or self.sale_price.get().isnumeric()==False or self.rent_price.get()=="" or self.rent_price.get().isnumeric()==False:
+                messagebox.showwarning("Invalid/Incomplete Details", "There may be an error due to invalid details entered or details not entered.\nPlease Check")
+                flag = 1
 
+        if flag==0:
+            flag = add_property(self.house_number.get(), self.street.get(), self.city.get(), self.locality.get(), self.pincode.get(),
+                                self.area.get(), self.bedrooms.get(), self.yoc.get(), (self.sid.get().split(", "))[1], self.sale_price.get(),
+                                self.rent_price.get(), self.availability.get())
         # check for unique id with database
 
         if flag == 0:
