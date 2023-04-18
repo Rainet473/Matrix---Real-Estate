@@ -11,7 +11,8 @@ The task of the project is described in the 'CS241-project.pdf' file.
 ### Instructions to run the GUI:
 1. Run all the instructions given in the create.sql file
 2. Run all the instructions given in the insert.sql file (Make sure you are using the database 'matrix_real_estate'
-3. Run main.py (It will open the GUI)
+3. Open database.py and edit the default parameters of the function 'establish_connection'. (Set the password and user for your mysql-server)
+4. Run main.py (It will open the GUI)
 
 You can now play with the GUI and find out what all it can do.
 Hope you like this project! :)
