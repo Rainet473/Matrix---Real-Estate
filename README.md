@@ -17,7 +17,7 @@ The task of the project is described in the 'CS241-project.pdf' file.
 You can now play with the GUI and find out what all it can do.
 
 ### Access the website:
-The website allows a user to view and search properties and also displays information about the agents and the areas assigned to them
+The website allows a user to view and search properties and also displays information about the agents and the areas assigned to them.
 Here's the link which redirects you to the website https://arcxzost.github.io/DBMS-project-website/
 
 Hope you like this project! :)
