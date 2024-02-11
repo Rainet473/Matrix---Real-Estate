@@ -1,8 +1,6 @@
 import yagmail
-#sender_email = "arijeetpcloud@gmail.com"
-sender_email = "testdevelop46675@gmail.com"
-#password = "zzcmqcwvscfwwptk"
-password = "hjmxhdlokgmktfrx"
+sender_email = ""    #Enter the sender email
+password = ""        #Enter the secret key that is allowed for the application to use, this is done in gmail settings, it is like a token
 yag = yagmail.SMTP({sender_email: "Matrix - Real Estate"},password=password)
 
 
