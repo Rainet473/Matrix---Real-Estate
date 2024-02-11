@@ -1,8 +1,8 @@
 from email_sender import *
 from tkinter import messagebox
 from datetime import datetime
-
-def establish_connection(host = '127.0.0.1', user = 'root', passwd = 'spiderman473', database= 'matrix_real_estate'):
+password = "" #Enter your password for SQL in the localhost
+def establish_connection(host = '127.0.0.1', user = 'root', passwd = password, database= 'matrix_real_estate'):
     '''Establishes connection with local database, throws exception(not error) if connection not established'''
     import mysql.connector as cntr
     from mysql.connector import Error
